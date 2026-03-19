@@ -26,7 +26,7 @@ features/intended use:
 
 - d20 dice
 
-- some glitches because I reduced the Cpu from 240 to 160 MHz
+- cpu is back at 240 MHz to reduce glitches, testing real life battery performance right now.
 
 Full disclosure: this was programmed with the help of a generative AI because I've only started to learn how to do this.
 You're welcome to contribute, change stuff! I don't think I have the time or the skills to implement all the features that have been requested.
