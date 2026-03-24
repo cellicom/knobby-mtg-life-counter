@@ -16,7 +16,7 @@ https://www.waveshare.com/wiki/ESP32-S3-Knob-Touch-LCD-1.8 I’ve flashed their 
 features/intended use:
 - life counter for Magic: the Gathering or other TCGs
 
-- life tracking from 0 - 666
+- life tracking from -999 to 999 with delta being shown as preview for 4 seconds
 
 - commander damage for up to 4 players, damage to all players
 
