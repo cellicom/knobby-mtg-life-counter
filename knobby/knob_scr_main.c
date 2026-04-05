@@ -14,7 +14,6 @@ lv_obj_t *screen_damage = NULL;
 
 // ---------- main UI widgets ----------
 static lv_obj_t *arc_life = NULL;
-static lv_obj_t *label_knobby_arc[KNOBBY_LETTER_COUNT];
 static lv_obj_t *life_container = NULL;
 static lv_obj_t *life_hitbox = NULL;
 static lv_obj_t *turn_container = NULL;
@@ -436,12 +435,6 @@ static void event_back_main(lv_event_t *e)
 // ---------- screen builders ----------
 void build_main_screen(void)
 {
-    int i;
-    static const char *knobby_letters[KNOBBY_LETTER_COUNT] = {"k", "n", "o", "b", "b", "y"};
-    static const lv_coord_t knobby_x[KNOBBY_LETTER_COUNT] = {46, 30, 22, 22, 30, 46};
-    static const lv_coord_t knobby_y[KNOBBY_LETTER_COUNT] = {96, 126, 158, 190, 222, 252};
-    static const int16_t knobby_angle[KNOBBY_LETTER_COUNT] = {-700, -500, -250, 250, 500, 700};
-
     screen_main = lv_obj_create(NULL);
     lv_obj_set_size(screen_main, 360, 360);
     lv_obj_set_style_bg_color(screen_main, lv_color_black(), 0);
@@ -457,15 +450,6 @@ void build_main_screen(void)
     lv_arc_set_value(arc_life, get_arc_display_value(life_total, nvs_get_life_total()));
     lv_obj_remove_style(arc_life, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(arc_life, LV_OBJ_FLAG_CLICKABLE);
-
-    for (i = 0; i < KNOBBY_LETTER_COUNT; i++) {
-        label_knobby_arc[i] = lv_label_create(screen_main);
-        lv_label_set_text(label_knobby_arc[i], knobby_letters[i]);
-        lv_obj_set_style_text_color(label_knobby_arc[i], lv_color_hex(0x9A9A9A), 0);
-        lv_obj_set_style_text_font(label_knobby_arc[i], &lv_font_montserrat_14, 0);
-        lv_obj_set_style_transform_angle(label_knobby_arc[i], knobby_angle[i], 0);
-        lv_obj_set_pos(label_knobby_arc[i], knobby_x[i], knobby_y[i]);
-    }
 
     life_hitbox = make_plain_box(screen_main, 320, 188);
     lv_obj_align(life_hitbox, LV_ALIGN_CENTER, 0, -8);
