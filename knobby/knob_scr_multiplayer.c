@@ -80,8 +80,11 @@ static void refresh_mp_panel(lv_obj_t *panel, lv_obj_t *life_lbl, lv_obj_t *name
         bg_color = get_life_color_vib(tier, vib);
         text_color = color_is_light(bg_color) ? lv_color_black() : lv_color_white();
     } else {
-        bg_color = selected ? get_player_active_color(i) : get_player_base_color(i);
-        text_color = get_player_text_color(i);
+        int vib;
+        if (multiplayer_selected < 0) vib = LIFE_VIB_MID;
+        else vib = selected ? LIFE_VIB_VIV : LIFE_VIB_DIM;
+        bg_color = get_player_color_vib(i, vib);
+        text_color = color_is_light(bg_color) ? lv_color_black() : lv_color_white();
     }
 
     if (panel != NULL) {

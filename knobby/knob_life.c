@@ -38,24 +38,29 @@ static lv_timer_t *life_preview_timer = NULL;
 static lv_timer_t *multiplayer_life_preview_timer = NULL;
 
 // ---------- player colors ----------
+static const uint32_t player_color_table[MAX_PLAYERS][LIFE_VIB_COUNT] = {
+    /*  dim        mid        vivid  */
+    {0x2A0A4D, 0x7B1FE0, 0x9C4DFF},  /* P1 purple */
+    {0x0A3A4D, 0x29B6F6, 0x4FC3F7},  /* P2 blue   */
+    {0x4D4400, 0xFFD600, 0xFFEA61},  /* P3 yellow */
+    {0x1A3D1A, 0xA5D6A7, 0x4CAF50},  /* P4 green  */
+};
+
+lv_color_t get_player_color_vib(int index, int vibrancy)
+{
+    if (index < 0 || index >= MAX_PLAYERS) return lv_color_hex(0x303030);
+    if (vibrancy < 0 || vibrancy >= LIFE_VIB_COUNT) vibrancy = LIFE_VIB_MID;
+    return lv_color_hex(player_color_table[index][vibrancy]);
+}
+
 lv_color_t get_player_base_color(int index)
 {
-    static const uint32_t colors[MAX_PLAYERS] = {
-        0x7B1FE0, 0x29B6F6, 0xFFD600, 0xA5D6A7,
-        0xFF6D00, 0xE040FB, 0x00BFA5, 0x8D6E63
-    };
-    if (index < 0 || index >= MAX_PLAYERS) return lv_color_hex(0x303030);
-    return lv_color_hex(colors[index]);
+    return get_player_color_vib(index, LIFE_VIB_MID);
 }
 
 lv_color_t get_player_active_color(int index)
 {
-    static const uint32_t colors[MAX_PLAYERS] = {
-        0x9C4DFF, 0x4FC3F7, 0xFFEA61, 0xC8E6C9,
-        0xFF9100, 0xEA80FC, 0x64FFDA, 0xBCAAA4
-    };
-    if (index < 0 || index >= MAX_PLAYERS) return lv_color_hex(0x505050);
-    return lv_color_hex(colors[index]);
+    return get_player_color_vib(index, LIFE_VIB_VIV);
 }
 
 lv_color_t get_player_text_color(int index)

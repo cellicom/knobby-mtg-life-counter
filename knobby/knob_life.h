@@ -36,6 +36,7 @@ void prepare_cmd_damage_for_player(int target);
 void multiplayer_life_preview_commit_cb(lv_timer_t *timer);
 
 // ---------- player colors ----------
+lv_color_t get_player_color_vib(int index, int vibrancy);
 lv_color_t get_player_base_color(int index);
 lv_color_t get_player_active_color(int index);
 lv_color_t get_player_text_color(int index);
