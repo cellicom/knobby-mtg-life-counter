@@ -1,5 +1,6 @@
 #include "knob_life.h"
 #include "knob_nvs.h"
+#include "knob_damage_log.h"
 
 // Forward declarations for UI refresh (defined in screen modules)
 extern void refresh_main_ui(void);
@@ -123,6 +124,7 @@ static void life_preview_commit_cb(lv_timer_t *timer)
 {
     (void)timer;
 
+    damage_log_add(-1, pending_life_delta);
     life_total = clamp_life(life_total + pending_life_delta);
     pending_life_delta = 0;
     life_preview_active = false;
@@ -149,6 +151,7 @@ void multiplayer_life_preview_commit_cb(lv_timer_t *timer)
         return;
     }
 
+    damage_log_add(multiplayer_preview_player, multiplayer_pending_life_delta);
     multiplayer_life[multiplayer_preview_player] = clamp_life(
         multiplayer_life[multiplayer_preview_player] + multiplayer_pending_life_delta
     );
@@ -213,6 +216,7 @@ void damage_apply(void)
     if (cmd_damage_target >= 0) {
         source = get_cmd_target_player_index(selected_enemy);
         multiplayer_cmd_damage_totals[source][cmd_damage_target] = enemies[selected_enemy].damage;
+        damage_log_add(cmd_damage_target, -delta);
         multiplayer_life[cmd_damage_target] = clamp_life(multiplayer_life[cmd_damage_target] - delta);
     } else {
         change_life(-delta);

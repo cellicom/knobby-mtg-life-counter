@@ -9,6 +9,7 @@
 #include "knob_scr_multiplayer.h"
 #include "knob_scr_menus.h"
 #include "knob_game_mode.h"
+#include "knob_damage_log.h"
 
 // ---------- swipe state ----------
 static lv_obj_t *previous_screen = NULL;
@@ -79,6 +80,7 @@ void knob_gui(void)
     build_damage_screen();
     build_settings_screen();
     build_battery_screen();
+    build_damage_log_screen();
     build_quad_menus();
     build_game_mode_menu_screen();
     build_custom_life_screen();
@@ -140,6 +142,11 @@ static void handle_knob_event(knob_event_t k)
         if (k == KNOB_LEFT)      change_custom_life(-1);
         else if (k == KNOB_RIGHT) change_custom_life(+1);
     }
+    else if (lv_scr_act() == screen_damage_log)
+    {
+        if (k == KNOB_LEFT)      damage_log_scroll(1);
+        else if (k == KNOB_RIGHT) damage_log_scroll(-1);
+    }
 }
 
 void knob_change(knob_event_t k, int cont)
@@ -176,6 +183,7 @@ void knob_process_pending(void)
             cur != screen_game_mode_menu && cur != screen_custom_life &&
             cur != screen_multiplayer_menu && cur != screen_multiplayer_name &&
             cur != screen_multiplayer_all_damage &&
+            cur != screen_damage_log &&
             cur != screen_intro) {
             previous_screen = cur;
             open_quad_menu();
@@ -200,6 +208,9 @@ void knob_process_pending(void)
         } else if (cur == screen_battery) {
             lv_scr_load(screen_screen_settings_menu);
         } else if (cur == screen_dice) {
+            lv_scr_load(screen_tools_menu);
+        } else if (cur == screen_damage_log) {
+            pause_damage_log_timer();
             lv_scr_load(screen_tools_menu);
         } else if (cur == screen_select) {
             back_to_main();

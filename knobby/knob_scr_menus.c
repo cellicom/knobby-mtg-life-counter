@@ -4,6 +4,7 @@
 #include "knob_dice.h"
 #include "knob_timer.h"
 #include "knob_game_mode.h"
+#include "knob_damage_log.h"
 
 // Forward declarations for cross-module calls
 extern void reset_all_values(void);
@@ -271,9 +272,16 @@ static void event_general_game_mode(lv_event_t *e)
     open_game_mode_menu();
 }
 
+static void event_open_damage_log(lv_event_t *e)
+{
+    (void)e;
+    open_damage_log_screen();
+}
+
 static void event_general_reset(lv_event_t *e)
 {
     (void)e;
+    damage_log_reset();
     reset_all_values();
     back_to_main();
 }
@@ -292,7 +300,7 @@ void build_quad_menus(void)
     quad_item_t tools_items[4] = {
         {"Dice",        event_tool_dice, true, LV_EVENT_CLICKED},
         {"Timer",       event_tool_timer, true, LV_EVENT_CLICKED},
-        {"",            NULL, false, LV_EVENT_CLICKED},
+        {"Event\nLog",  event_open_damage_log, true, LV_EVENT_CLICKED},
         {"",            NULL, false, LV_EVENT_CLICKED},
     };
     build_quad_screen(&screen_tools_menu, tools_items);

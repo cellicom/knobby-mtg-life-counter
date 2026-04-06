@@ -2,6 +2,7 @@
 #include "knob_scr_main.h"
 #include "knob_life.h"
 #include "knob_nvs.h"
+#include "knob_damage_log.h"
 
 // ---------- screens ----------
 lv_obj_t *screen_multiplayer = NULL;
@@ -375,6 +376,7 @@ static void event_multiplayer_all_damage_apply(lv_event_t *e)
 
     (void)e;
     for (i = 0; i < nvs_get_players_to_track(); i++) {
+        damage_log_add(i, -multiplayer_all_damage_value);
         multiplayer_life[i] = clamp_life(multiplayer_life[i] - multiplayer_all_damage_value);
     }
 
