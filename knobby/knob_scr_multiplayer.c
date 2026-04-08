@@ -97,7 +97,21 @@ static void refresh_mp_panel(lv_obj_t *panel, lv_obj_t *life_lbl, lv_obj_t *name
         if (preview_here) {
             snprintf(buf, sizeof(buf), "%+d", multiplayer_pending_life_delta);
             lv_label_set_text(life_lbl, buf);
-            lv_obj_set_style_text_color(life_lbl, get_player_preview_color(i, multiplayer_pending_life_delta), 0);
+            {
+                lv_color_t preview_c;
+                if (nvs_get_color_mode() == COLOR_MODE_LIFE) {
+                    /* Life-color mode: pick purely on bg contrast */
+                    preview_c = color_is_light(bg_color) ? lv_color_black() : lv_color_white();
+                } else {
+                    preview_c = get_player_preview_color(i, multiplayer_pending_life_delta);
+                    /* If preview color would blend into bg, flip */
+                    if (color_is_light(bg_color) && color_is_light(preview_c))
+                        preview_c = lv_color_black();
+                    else if (!color_is_light(bg_color) && !color_is_light(preview_c))
+                        preview_c = lv_color_white();
+                }
+                lv_obj_set_style_text_color(life_lbl, preview_c, 0);
+            }
         } else {
             snprintf(buf, sizeof(buf), "%d", multiplayer_life[i]);
             lv_label_set_text(life_lbl, buf);

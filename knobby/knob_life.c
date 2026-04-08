@@ -72,7 +72,12 @@ lv_color_t get_player_text_color(int index)
 lv_color_t get_player_preview_color(int index, int delta)
 {
     if (index == 2) {
+        /* P3 yellow: dark red / dark green for contrast */
         return (delta < 0) ? lv_color_hex(0x7A1020) : lv_color_hex(0x215A2A);
+    }
+    if (index == 3) {
+        /* P4 green: bright red / white for contrast on green bg */
+        return (delta < 0) ? lv_palette_main(LV_PALETTE_RED) : lv_color_white();
     }
     return (delta < 0) ? lv_palette_main(LV_PALETTE_RED) : lv_palette_main(LV_PALETTE_GREEN);
 }
