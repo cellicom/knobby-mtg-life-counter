@@ -30,6 +30,7 @@
     <h1>Knobby Web Installer</h1>
     <p>Connect your Knobby device via USB, then click the button below to flash the latest firmware directly from your browser.</p>
     <p><em>Note: This requires a Web Serial compatible browser like Chrome, Edge, or Opera.</em></p>
+    <p><em>Note: If you get an "Installation failed - Your ESP32 board is not supported" error, try flipping your USB cable 180 degrees, refreshing the page, and trying again. The cable orientation affects which chip is exposed for flashing on this device.</em></p>
     <script type="module" src="https://unpkg.com/esp-web-tools@10.0.1/dist/web/install-button.js?module"></script>
     <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
   </div>
