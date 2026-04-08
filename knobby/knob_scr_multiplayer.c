@@ -123,7 +123,7 @@ static void refresh_mp_panel(lv_obj_t *panel, lv_obj_t *life_lbl, lv_obj_t *name
 
 static void refresh_multiplayer_4p_ui(void)
 {
-    static const int16_t rot[MULTIPLAYER_COUNT] = {1350, 2250, 3150, 450};
+    static const int16_t rot[MULTIPLAYER_COUNT] = {450, 1350, 2250, 3150};
     bool do_rot = nvs_get_rotation();
     int i;
 
@@ -155,30 +155,27 @@ static void refresh_multiplayer_2p_ui(void)
 
 static void refresh_multiplayer_3p_ui(void)
 {
-    static const int16_t rot[MULTIPLAYER_COUNT] = {1350, 2250, 3150, 450};
-    /* Map 3 players to quadrants: 0=top-left, 1=top-right, 3=bottom-left */
-    static const int slots[3] = {0, 1, 3};
+    static const int16_t rot[MULTIPLAYER_COUNT] = {450, 1350, 2250, 3150};
     bool do_rot = nvs_get_rotation();
-    int i, q;
+    int i;
 
     for (i = 0; i < 3; i++) {
-        q = slots[i];
-        refresh_mp_panel(multiplayer_quadrants[q], label_multiplayer_life[q], label_multiplayer_name[q], i);
-        if (label_multiplayer_life[q] != NULL)
-            lv_obj_align(label_multiplayer_life[q], LV_ALIGN_CENTER, 0, do_rot ? -30 : -12);
-        if (label_multiplayer_name[q] != NULL)
-            lv_obj_align(label_multiplayer_name[q], LV_ALIGN_CENTER, 0, 30);
-        apply_label_rotation(label_multiplayer_life[q], label_multiplayer_name[q],
-            do_rot ? rot[q] : 0, 30, -30);
+        refresh_mp_panel(multiplayer_quadrants[i], label_multiplayer_life[i], label_multiplayer_name[i], i);
+        if (label_multiplayer_life[i] != NULL)
+            lv_obj_align(label_multiplayer_life[i], LV_ALIGN_CENTER, 0, do_rot ? -30 : -12);
+        if (label_multiplayer_name[i] != NULL)
+            lv_obj_align(label_multiplayer_name[i], LV_ALIGN_CENTER, 0, 30);
+        apply_label_rotation(label_multiplayer_life[i], label_multiplayer_name[i],
+            do_rot ? rot[i] : 0, 30, -30);
     }
 
-    /* Hide bottom-right quadrant (index 2) */
-    if (multiplayer_quadrants[2] != NULL)
-        lv_obj_set_style_bg_opa(multiplayer_quadrants[2], LV_OPA_TRANSP, 0);
-    if (label_multiplayer_life[2] != NULL)
-        lv_obj_add_flag(label_multiplayer_life[2], LV_OBJ_FLAG_HIDDEN);
-    if (label_multiplayer_name[2] != NULL)
-        lv_obj_add_flag(label_multiplayer_name[2], LV_OBJ_FLAG_HIDDEN);
+    /* Hide bottom-right quadrant (index 3) */
+    if (multiplayer_quadrants[3] != NULL)
+        lv_obj_set_style_bg_opa(multiplayer_quadrants[3], LV_OPA_TRANSP, 0);
+    if (label_multiplayer_life[3] != NULL)
+        lv_obj_add_flag(label_multiplayer_life[3], LV_OBJ_FLAG_HIDDEN);
+    if (label_multiplayer_name[3] != NULL)
+        lv_obj_add_flag(label_multiplayer_name[3], LV_OBJ_FLAG_HIDDEN);
 }
 
 // ---------- refresh functions ----------
@@ -241,12 +238,7 @@ static void open_multiplayer_all_damage_screen(void)
 static int quad_to_player(int quad)
 {
     int track = nvs_get_players_to_track();
-    if (track == 3) {
-        if (quad == 2) return -1;  /* bottom-right is empty */
-        if (quad == 3) return 2;   /* bottom-left is player 2 */
-    } else {
-        if (quad >= track) return -1;
-    }
+    if (quad >= track) return -1;
     return quad;
 }
 
@@ -352,8 +344,8 @@ static void event_multiplayer_all_damage_apply(lv_event_t *e)
 void build_multiplayer_screen(void)
 {
     static const char *player_names[MULTIPLAYER_COUNT] = {"P1", "P2", "P3", "P4"};
-    static const lv_coord_t quad_x[MULTIPLAYER_COUNT] = {0, 180, 180, 0};
-    static const lv_coord_t quad_y[MULTIPLAYER_COUNT] = {0, 0, 180, 180};
+    static const lv_coord_t quad_x[MULTIPLAYER_COUNT] = {0, 0, 180, 180};
+    static const lv_coord_t quad_y[MULTIPLAYER_COUNT] = {180, 0, 0, 180};
     int i;
 
     screen_4p = lv_obj_create(NULL);

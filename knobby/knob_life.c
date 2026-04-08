@@ -41,10 +41,10 @@ static lv_timer_t *multiplayer_life_preview_timer = NULL;
 // ---------- player colors ----------
 static const uint32_t player_color_table[MAX_PLAYERS][LIFE_VIB_COUNT] = {
     /*  dim        mid        vivid  */
-    {0x2A0A4D, 0x7B1FE0, 0x9C4DFF},  /* P1 purple */
-    {0x0A3A4D, 0x29B6F6, 0x4FC3F7},  /* P2 blue   */
-    {0x4D4400, 0xFFD600, 0xFFEA61},  /* P3 yellow */
-    {0x1A3D1A, 0xA5D6A7, 0x4CAF50},  /* P4 green  */
+    {0x1A3D1A, 0xA5D6A7, 0x4CAF50},  /* P1 green  (bottom-left) */
+    {0x2A0A4D, 0x7B1FE0, 0x9C4DFF},  /* P2 purple (top-left)    */
+    {0x0A3A4D, 0x29B6F6, 0x4FC3F7},  /* P3 blue   (top-right)   */
+    {0x4D4400, 0xFFD600, 0xFFEA61},  /* P4 yellow (bottom-right) */
 };
 
 lv_color_t get_player_color_vib(int index, int vibrancy)
@@ -66,17 +66,17 @@ lv_color_t get_player_active_color(int index)
 
 lv_color_t get_player_text_color(int index)
 {
-    return (index == 2) ? lv_color_black() : lv_color_white();
+    return (index == 3) ? lv_color_black() : lv_color_white();
 }
 
 lv_color_t get_player_preview_color(int index, int delta)
 {
-    if (index == 2) {
-        /* P3 yellow: dark red / dark green for contrast */
+    if (index == 3) {
+        /* P4 yellow: dark red / dark green for contrast */
         return (delta < 0) ? lv_color_hex(0x7A1020) : lv_color_hex(0x215A2A);
     }
-    if (index == 3) {
-        /* P4 green: bright red / white for contrast on green bg */
+    if (index == 0) {
+        /* P1 green: bright red / white for contrast on green bg */
         return (delta < 0) ? lv_palette_main(LV_PALETTE_RED) : lv_color_white();
     }
     return (delta < 0) ? lv_palette_main(LV_PALETTE_RED) : lv_palette_main(LV_PALETTE_GREEN);
