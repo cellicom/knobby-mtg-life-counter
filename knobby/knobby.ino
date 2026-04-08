@@ -1,4 +1,4 @@
-#include <WiFi.h>
+#include "esp_wifi.h"
 #include "esp_bt.h"
 #include "esp_sleep.h"
 #include "driver/gpio.h"
@@ -61,9 +61,11 @@ void setup()
   // 160 MHz verbraucht weniger Batterie, 240 MHz reduziert hier aber Darstellungsfehler und Hänger.
   setCpuFrequencyMhz(240);
 
-  // Funk deaktivieren
-  WiFi.mode(WIFI_OFF);
-  btStop();
+  // Disable radios
+  esp_wifi_stop();
+  esp_wifi_deinit();
+  esp_bt_controller_disable();
+  esp_bt_controller_deinit();
 
   delay(200);
   Serial.begin(115200);
