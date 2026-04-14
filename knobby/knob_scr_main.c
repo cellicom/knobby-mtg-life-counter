@@ -19,7 +19,6 @@ static lv_obj_t *label_life_total = NULL;
 static lv_obj_t *label_life_preview_total = NULL;
 static lv_obj_t *turn_container = NULL;
 static lv_obj_t *label_turn = NULL;
-static lv_obj_t *label_turn_time = NULL;
 static lv_obj_t *turn_live_dot = NULL;
 
 // ---------- select UI ----------
@@ -52,22 +51,23 @@ static void refresh_ring(void)
 
 void refresh_turn_ui(void)
 {
-    char turn_buf[24];
-    char time_buf[24];
+    char buf[48];
     uint32_t total_seconds = get_turn_elapsed_ms() / 1000;
     uint32_t hours = total_seconds / 3600;
     uint32_t minutes = (total_seconds % 3600) / 60;
 
     if (turn_number <= 0) {
-        lv_label_set_text(label_turn, "turn");
+        snprintf(buf, sizeof(buf), "turn  %lu:%02lu",
+                 (unsigned long)hours, (unsigned long)minutes);
     } else {
-        snprintf(turn_buf, sizeof(turn_buf), "turn %d", turn_number);
-        lv_label_set_text(label_turn, turn_buf);
+        snprintf(buf, sizeof(buf), "turn %d  %lu:%02lu",
+                 turn_number, (unsigned long)hours, (unsigned long)minutes);
     }
+    lv_label_set_text(label_turn, buf);
 
-    snprintf(time_buf, sizeof(time_buf), "%lu:%02lu",
-             (unsigned long)hours, (unsigned long)minutes);
-    lv_label_set_text(label_turn_time, time_buf);
+    if (turn_live_dot != NULL) {
+        lv_obj_align_to(turn_live_dot, label_turn, LV_ALIGN_OUT_RIGHT_MID, 6, 0);
+    }
 
     if (turn_container != NULL) {
         if (turn_ui_visible) {
@@ -295,31 +295,25 @@ void build_main_screen(void)
     lv_obj_align(label_life_preview_total, LV_ALIGN_CENTER, 0, 80);
     lv_obj_add_flag(label_life_preview_total, LV_OBJ_FLAG_HIDDEN);
 
-    turn_container = make_plain_box(screen_1p, 96, 96);
-    lv_obj_align(turn_container, LV_ALIGN_CENTER, 110, -6);
+    turn_container = make_plain_box(screen_1p, 240, 32);
+    lv_obj_align(turn_container, LV_ALIGN_CENTER, 0, 120);
     lv_obj_add_flag(turn_container, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_flag(turn_container, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(turn_container, event_turn_tap, LV_EVENT_CLICKED, NULL);
 
     label_turn = lv_label_create(turn_container);
-    lv_label_set_text(label_turn, "turn");
-    lv_obj_set_style_text_color(label_turn, lv_color_white(), 0);
+    lv_label_set_text(label_turn, "turn  0:00");
+    lv_obj_set_style_text_color(label_turn, lv_color_hex(0xB8B8B8), 0);
     lv_obj_set_style_text_font(label_turn, &lv_font_montserrat_22, 0);
-    lv_obj_align(label_turn, LV_ALIGN_TOP_MID, 0, 10);
-
-    label_turn_time = lv_label_create(turn_container);
-    lv_label_set_text(label_turn_time, "0:00");
-    lv_obj_set_style_text_color(label_turn_time, lv_color_hex(0xB8B8B8), 0);
-    lv_obj_set_style_text_font(label_turn_time, &lv_font_montserrat_22, 0);
-    lv_obj_align(label_turn_time, LV_ALIGN_TOP_MID, -8, 48);
+    lv_obj_align(label_turn, LV_ALIGN_CENTER, 0, 0);
 
     turn_live_dot = lv_obj_create(turn_container);
     lv_obj_remove_style_all(turn_live_dot);
-    lv_obj_set_size(turn_live_dot, 12, 12);
+    lv_obj_set_size(turn_live_dot, 10, 10);
     lv_obj_set_style_radius(turn_live_dot, LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_bg_color(turn_live_dot, lv_palette_main(LV_PALETTE_RED), 0);
     lv_obj_set_style_bg_opa(turn_live_dot, LV_OPA_COVER, 0);
-    lv_obj_align(turn_live_dot, LV_ALIGN_TOP_MID, 28, 52);
+    lv_obj_align_to(turn_live_dot, label_turn, LV_ALIGN_OUT_RIGHT_MID, 6, 0);
     lv_obj_add_flag(turn_live_dot, LV_OBJ_FLAG_HIDDEN);
 }
 
