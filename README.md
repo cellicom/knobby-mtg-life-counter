@@ -74,18 +74,15 @@ Run `sim/knobby_sim --help` for all CLI options. See [sim/screenshots/README.md]
 
 ## 🕹️ Simulators
 
-You can test the Knobby interface on your PC or in a browser without hardware, on any OS (Windows, macOS, Linux).
-
-> [!Note]
-> The scripts auto-detect Python, LVGL and your C compiler from PATH.
-> If needed, copy `config.local.sh.example` → `config.local.sh` and set paths there.
+You can test the Knobby interface on your PC or in a browser without hardware. 
+Both **`make`** commands and **`./*.sh`** scripts are provided for convenience.
 
 ### Web Simulator (WASM) 🌐
 Runs the **actual C firmware** compiled to WebAssembly directly in the browser.
-```sh
-./sim-web.sh           # start local server + open browser
-./compile.sh           # re-compile from source (requires Emscripten)
-```
+- **Run server:** `make sim-web-run` (or `./sim-web.sh`)
+- **Build from source:** `make sim-web-build` (or `./compile.sh`)
+
+*Open [http://localhost:8000/sim/index.html](http://localhost:8000/sim/index.html) after starting the server.*
 
 > [!Note]
 > A pre-compiled `knobby_web.wasm` is already included. You only need to install Emscripten if you want to recompile from source.
@@ -98,16 +95,10 @@ cd emsdk
 ./emsdk activate latest
 source ./emsdk_env.sh   # or emsdk_env.bat on Windows
 ```
-Then, from the repo root:
-```sh
-./compile.sh
-```
 
 ### PC Simulator (Native) 💻
 A native application for local interactive development.
-```sh
-./sim.sh
-```
+- **Run:** `make sim` (or `./sim.sh`)
 
 **Controls:**
 - **Touch:** Left Click

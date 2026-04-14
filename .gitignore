@@ -76,3 +76,4 @@ sim/gen_web_sources.py
 
 # Machine-specific config (use config.local.sh.example as template)
 config.local.sh
+emsdk/

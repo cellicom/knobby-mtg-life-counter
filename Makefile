@@ -30,10 +30,15 @@ help:
 	@echo "  make help                          - Show this message"
 	@echo ""
 	@echo "Interactive Simulator (PC):"
-	@echo "  make sim                           - Run interactive SDL2 simulator"
+	@echo "  make sim                           - Build and run interactive SDL2 simulator"
 	@echo "  make sim-gui                       - (alias for make sim)"
 	@echo ""
+	@echo "Interactive Simulator (Web):"
+	@echo "  make sim-web-build                 - Build WASM simulator (requires Emscripten)"
+	@echo "  make sim-web-run                   - Run Web simulator in browser (requires Python)"
+	@echo ""
 	@echo "Run sim/knobby_sim --help for all screenshot CLI options"
+	@echo ""
 
 # ---- Firmware targets ----
 
@@ -64,16 +69,20 @@ firmware-flash: check-arduino
 	fi
 	$(ARDUINO_CLI) upload --fqbn "$(FQBN)" -p $(PORT) knobby
 
-# ---- Screenshot targets (delegate to sim/) ----
+# ---- Simulator targets (delegate to sim/) ----
 
 sim:
 	$(MAKE) -C sim gui
 
-sim-gui:
-	$(MAKE) -C sim gui
+sim-gui: sim
 
-sim-web:
+sim-web-build:
 	$(MAKE) -C sim web
+
+sim-web-run:
+	@echo "[INFO] Avvio server web locale..."
+	@echo "[INFO] Premi Ctrl+C per fermare il server."
+	$(PYTHON) -m http.server 8000 --directory .
 
 screenshot:
 	$(MAKE) -C sim screenshot ARGS="$(ARGS)"
