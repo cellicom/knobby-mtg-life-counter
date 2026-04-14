@@ -1,18 +1,32 @@
 # Knobby Screenshot Simulator
 # Requires: gcc, LVGL installed via arduino-cli (see CONTRIBUTING.md)
 
-LVGL_PATH := $(HOME)/Arduino/libraries/lvgl
+# Include configuration for paths
+-include ../config.mk
+
+# Default values if not passed from config.sh
+LLVM_BIN  ?= 
+LVGL_PATH ?= $(HOME)/Arduino/libraries/lvgl
+PYTHON    ?= python3
+
+SDL2_ROOT := SDL2/x86_64-w64-mingw32
+
 KNOBBY    := ../knobby
 BUILD     := build
 BIN       := knobby_sim
+BIN_GUI   := knobby_sim_gui.exe
 
-CC        := gcc
+CC        := $(LLVM_BIN)/clang.exe
+SDL_CFLAGS := -I$(SDL2_ROOT)/include
+SDL_LDFLAGS := -L$(SDL2_ROOT)/lib -lSDL2main -lSDL2
+
 CFLAGS    := -Wall -Wno-unused-function \
              -DLV_CONF_INCLUDE_SIMPLE -DSIMULATOR=1 \
              -I. -Iesp_stubs -I$(LVGL_PATH) -I$(KNOBBY) -I$(KNOBBY)/src \
+             $(SDL_CFLAGS) \
              -O2 -g
 
-LDFLAGS   := -lm
+LDFLAGS   := $(SDL_LDFLAGS) -lm
 
 # ---- Source files ----
 
@@ -34,45 +48,55 @@ LVGL_SRCS := $(call rwildcard,$(LVGL_PATH)/src/,*.c)
 
 FONT_SRCS := $(wildcard $(KNOBBY)/src/fonts/*.c)
 
-ALL_SRCS := $(SIM_SRCS) $(KNOBBY_TOP_SRCS) $(KNOBBY_SRC_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
+ALL_SRCS := $(SIM_SRCS) $(KNOBBY_TOP_SRCS) $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
+ALL_SRCS_GUI := sim_sdl2.c sim_stubs.c $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
 
 # Object files — flatten into build/ using path-mangled names
-obj_name = $(BUILD)/$(subst /,__,$(subst ..,UP,$(1:.c=.o)))
+obj_name = $(BUILD)/$(subst :,_COL_,$(subst /,__,$(subst ..,UP,$(1:.c=.o))))
 ALL_OBJS := $(foreach src,$(ALL_SRCS),$(call obj_name,$(src)))
+ALL_OBJS_GUI := $(foreach src,$(ALL_SRCS_GUI),$(call obj_name,$(src)))
 
 # ---- Targets ----
 
-.PHONY: screenshot generate-matrix clean check-lvgl
+.PHONY: screenshot generate-matrix clean gui web sim-gui
 
-$(BIN): check-lvgl $(ALL_OBJS)
+$(BIN): $(ALL_OBJS)
 	$(CC) $(ALL_OBJS) -o $@ $(LDFLAGS)
 
+sim-gui: $(BIN_GUI)
+	./$(BIN_GUI)
+
+gui: $(BIN_GUI)
+	./$(BIN_GUI)
+
+$(BIN_GUI): $(ALL_OBJS_GUI)
+	$(CC) $(ALL_OBJS_GUI) -o $@ $(LDFLAGS)
+
+web:
+	$(PYTHON) gen_web_sources.py $(LVGL_PATH) $(KNOBBY)
+	$(EMCC) $(CFLAGS) -o knobby_web.js @web_sources.txt \
+		-s USE_SDL=2 -s WASM=1 \
+		-s INITIAL_MEMORY=33554432 \
+		-s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+
 screenshot: $(BIN)
-	@mkdir -p screenshots
+	@if not exist screenshots mkdir screenshots
 	./$(BIN) $(ARGS)
 
 generate-matrix: $(BIN)
 	./generate_matrix.sh
 
 clean:
-	rm -rf $(BUILD) $(BIN)
-
-check-lvgl:
-	@if [ ! -d "$(LVGL_PATH)/src" ]; then \
-		echo "Error: LVGL not found at $(LVGL_PATH)"; \
-		echo "Install it with: make firmware-deps (from repo root)"; \
-		echo "(See CONTRIBUTING.md for full setup)"; \
-		exit 1; \
-	fi
+	rm -rf $(BUILD) $(BIN) $(BIN_GUI)
 
 # ---- Build rules ----
 
 $(BUILD):
-	@mkdir -p $(BUILD)
+	@if not exist $(BUILD) mkdir $(BUILD)
 
 define compile_rule
 $(call obj_name,$(1)): $(1) | $(BUILD)
 	$(CC) $(CFLAGS) -c $$< -o $$@
 endef
 
-$(foreach src,$(ALL_SRCS),$(eval $(call compile_rule,$(src))))
+$(foreach src,$(sort $(ALL_SRCS) $(ALL_SRCS_GUI)),$(eval $(call compile_rule,$(src))))

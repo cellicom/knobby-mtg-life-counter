@@ -1,0 +1,13 @@
+# config.local.sh - Machine-specific overrides (gitignored)
+# Copy this file to config.local.sh and adjust as needed.
+# This file is sourced at the end of config.sh, so values here
+# take precedence over auto-detected ones.
+
+# Example for Windows + LLVM-MinGW:
+# export PATH="$PATH:/path/to/llvm-mingw/bin"
+
+# Example if LVGL is not in the default Arduino libraries folder:
+# export LVGL_PATH="$HOME/Documents/Arduino/libraries/lvgl"
+
+# Example if you have a local Emscripten install:
+# export EMCC="/opt/emsdk/upstream/emscripten/emcc"
