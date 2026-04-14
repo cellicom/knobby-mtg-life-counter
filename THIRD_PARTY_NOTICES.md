@@ -4,12 +4,7 @@ This repository includes a generated icon font subset in [knobby/mana_counter_ic
 
 Source:
 - Mana by Andrew Gioia: https://github.com/andrewgioia/mana
-
-Included glyphs:
-- Commander (`ms-commander`)
-- Party (`ms-ability-party`)
-- Skull counter (`ms-counter-skull`)
-- Level (`ms-level`)
+- Keyrune by Andrew Gioia: https://github.com/andrewgioia/keyrune
 
 Upstream licensing summary from Mana:
 - All mana and card symbol images are copyright Wizards of the Coast.

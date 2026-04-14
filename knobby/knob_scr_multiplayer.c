@@ -93,7 +93,9 @@ static void create_counter_row(lv_obj_t *parent, counter_type_t type,
     glyph = lv_label_create(row);
     lv_label_set_text(glyph, get_counter_badge_text(definition));
     lv_obj_set_style_text_color(glyph, get_player_text_color(player_index), 0);
-    lv_obj_set_style_text_font(glyph, get_counter_badge_font(definition), 0);
+    lv_obj_set_style_text_font(glyph,
+        (type == COUNTER_TYPE_POISON) ? &mana_poison_icon_bold_16
+                                      : get_counter_badge_font(definition), 0);
     lv_obj_align(glyph, LV_ALIGN_TOP_MID, 0, 0);
 
     *value_out = lv_label_create(row);
