@@ -1,14 +1,26 @@
 # Knobby Simulator Configuration
-# Modifica questi percorsi in base al tuo sistema
+# Automatically included by Makefiles.
+#
+# To override paths for your machine, create a file called config.local.sh
+# (gitignored) and set any of these variables there.
+# The shell scripts (sim.sh, web.sh, web_real.sh) will pass them to make.
+#
+# Example config.local.sh:
+#   LVGL_PATH=/opt/homebrew/share/arduino/libraries/lvgl
+#   CC=clang-17
+#   EMCC=/opt/emsdk/upstream/emscripten/emcc
 
-# Toolchain LLVM/MinGW
-LLVM_BIN  := C:/Users/Utente/AppData/Local/Microsoft/WinGet/Packages/MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe/llvm-mingw-20260407-ucrt-x86_64/bin
+# C compiler — auto-detected by config.sh, passed in from shell
+CC        ?= clang
 
-# Percorso della libreria LVGL (solitamente in Documenti/Arduino/libraries/lvgl)
-LVGL_PATH := C:/Users/Utente/Documents/Arduino/libraries/lvgl
+# LVGL path — auto-detected by config.sh, passed in from shell
+LVGL_PATH ?= $(HOME)/Documents/Arduino/libraries/lvgl
 
-# Percorso di Python (usato per generare le liste dei sorgenti e per il server web)
-PYTHON    := C:/Users/Utente/AppData/Local/Programs/Python/Python311/python.exe
+# Python — auto-detected by config.sh as python3/python
+PYTHON    ?= python3
 
-# Percorso Arduino CLI (per flashare il firmware hardware)
-ARDUINO_CLI := "C:\Program Files\Arduino CLI\arduino-cli.exe"
+# Emscripten compiler — passed in from shell when available
+EMCC      ?= emcc
+
+# Arduino CLI — standard install path (rarely needs changing)
+ARDUINO_CLI ?= arduino-cli

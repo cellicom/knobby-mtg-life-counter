@@ -4,8 +4,7 @@
 -include config.mk
 
 # Default paths if config.mk not present
-LLVM_BIN ?= llvm-mingw/bin
-MAKE     ?= $(LLVM_BIN)/mingw32-make.exe
+MAKE ?= make
 
 # ---- Arduino CLI ----
 ARDUINO_CLI ?= "C:\Program Files\Arduino CLI\arduino-cli.exe"

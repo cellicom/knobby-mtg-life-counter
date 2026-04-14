@@ -4,10 +4,10 @@
 # Include configuration for paths
 -include ../config.mk
 
-# Default values if config.mk doesn't exist
-LLVM_BIN  ?= llvm-mingw/bin
-LVGL_PATH ?= C:/Users/Utente/Documents/Arduino/libraries/lvgl
-PYTHON    ?= python
+# Default values if not passed from config.sh
+LLVM_BIN  ?= 
+LVGL_PATH ?= $(HOME)/Documents/Arduino/libraries/lvgl
+PYTHON    ?= python3
 
 SDL2_ROOT := SDL2/x86_64-w64-mingw32
 
