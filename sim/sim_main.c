@@ -251,6 +251,8 @@ static void populate_random_counters(void)
     for (p = 0; p < MAX_PLAYERS; p++)
         for (t = 0; t < COUNTER_TYPE_COUNT; t++)
             multiplayer_counter_values[p][t] = rand() % 100;
+    for (t = 0; t < COUNTER_TYPE_COUNT; t++)
+        singleplayer_counter_values[t] = rand() % 100;
 }
 
 static void populate_random_log(void)
