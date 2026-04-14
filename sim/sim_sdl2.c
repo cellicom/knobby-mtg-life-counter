@@ -3,10 +3,10 @@
 #include "sim_stubs.h"
 #include "board_detect.h"
 #include "knob.h"
-#include "knob_hw.h"
-#include "knob_nvs.h"
-#include "knob_life.h"
-#include "knob_scr_main.h"
+#include "hw.h"
+#include "storage.h"
+#include "game.h"
+#include "ui_1p.h"
 
 #include <stdio.h>
 #include <stdbool.h>

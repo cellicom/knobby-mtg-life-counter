@@ -22,7 +22,7 @@ SDL_LDFLAGS := -L$(SDL2_ROOT)/lib -lSDL2main -lSDL2
 
 CFLAGS    := -Wall -Wno-unused-function \
              -DLV_CONF_INCLUDE_SIMPLE -DSIMULATOR=1 \
-             -I. -Iesp_stubs -I$(LVGL_PATH) -I$(KNOBBY) -I$(KNOBBY)/src \
+             -I. -Iesp_stubs -I$(LVGL_PATH) -I$(LVGL_PATH)/src -I$(KNOBBY) -I$(KNOBBY)/src \
              $(SDL_CFLAGS) \
              -O2 -g
 
@@ -48,8 +48,8 @@ LVGL_SRCS := $(call rwildcard,$(LVGL_PATH)/src/,*.c)
 
 FONT_SRCS := $(wildcard $(KNOBBY)/src/fonts/*.c)
 
-ALL_SRCS := $(SIM_SRCS) $(KNOBBY_TOP_SRCS) $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
-ALL_SRCS_GUI := sim_sdl2.c sim_stubs.c $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
+ALL_SRCS := $(SIM_SRCS) $(KNOBBY_TOP_SRCS) $(KNOBBY_SRC_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
+ALL_SRCS_GUI := sim_sdl2.c sim_stubs.c $(KNOBBY_TOP_SRCS) $(KNOBBY_SRC_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
 
 # Object files — flatten into build/ using path-mangled names
 obj_name = $(BUILD)/$(subst :,_COL_,$(subst /,__,$(subst ..,UP,$(1:.c=.o))))

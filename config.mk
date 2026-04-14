@@ -38,8 +38,15 @@ ifeq ($(OS),Windows_NT)
 else
     MAKE      := make
     
-    # LVGL path — Linux default: ~/Arduino/libraries/lvgl (macOS uses Documents)
-    LVGL_PATH ?= $(HOME)/Arduino/libraries/lvgl
+    # OS detection for macOS
+    UNAME_S := $(shell uname -s)
+    
+    # LVGL path — standard location on macOS vs Linux
+    ifeq ($(UNAME_S),Darwin)
+        LVGL_PATH ?= $(HOME)/Documents/Arduino/libraries/lvgl
+    else
+        LVGL_PATH ?= $(HOME)/Arduino/libraries/lvgl
+    endif
     
     # Python — auto-detected as python3/python
     PYTHON    ?= python3

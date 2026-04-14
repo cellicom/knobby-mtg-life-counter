@@ -24,9 +24,9 @@ def main():
     
     # Knobby sources
     knobby_files = [
-        'knob.c', 'knob_scr_main.c', 'knob_scr_multiplayer.c', 'knob_scr_menus.c',
-        'knob_intro.c', 'knob_timer.c', 'knob_life.c', 'knob_damage_log.c',
-        'knob_game_mode.c', 'knob_rename.c', 'knob_dice.c', 'knob_hw.c', 'knob_nvs.c'
+        'knob.c', 'src/ui_1p.c', 'src/ui_mp.c', 'src/settings.c',
+        'src/intro.c', 'src/timer.c', 'src/game.c', 'src/damage_log.c',
+        'src/game_mode.c', 'src/rename.c', 'src/dice.c', 'src/hw.c', 'src/storage.c'
     ]
     sources.extend([os.path.join(knobby_path, f).replace('\\', '/') for f in knobby_files])
     
