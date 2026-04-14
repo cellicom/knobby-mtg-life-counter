@@ -1,4 +1,5 @@
 #include "knob_scr_main.h"
+#include "knob_scr_menus.h"
 #include "knob_scr_multiplayer.h"
 #include "knob_life.h"
 #include "knob_timer.h"
@@ -9,6 +10,7 @@ extern lv_obj_t *screen_4p;
 
 // ---------- screens ----------
 lv_obj_t *screen_1p = NULL;
+lv_obj_t *screen_1p_menu = NULL;
 lv_obj_t *screen_select = NULL;
 lv_obj_t *screen_damage = NULL;
 
@@ -24,7 +26,6 @@ static lv_obj_t *turn_live_dot = NULL;
 // ---------- 1p counter widgets ----------
 static lv_obj_t *counter_row_1p[COUNTER_TYPE_COUNT];
 static lv_obj_t *counter_value_1p[COUNTER_TYPE_COUNT];
-static lv_obj_t *counter_hitbox = NULL;
 
 // ---------- select UI ----------
 static lv_obj_t *label_select_title = NULL;
@@ -165,13 +166,6 @@ static void refresh_1p_counters(void)
         lv_obj_align(counter_row_1p[counter_type], LV_ALIGN_TOP_MID, x_offset, counter_y);
     }
 
-    if (counter_hitbox != NULL) {
-        if (visible_count > 0) {
-            lv_obj_clear_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-        } else {
-            lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-        }
-    }
 }
 
 void refresh_main_ui(void)
@@ -294,14 +288,20 @@ static void open_damage_screen(int enemy_index)
 }
 
 // ---------- events ----------
-static void event_open_select(lv_event_t *e)
+static void event_open_1p_menu(lv_event_t *e)
+{
+    (void)e;
+    load_screen_if_needed(screen_1p_menu);
+}
+
+static void event_1p_menu_cmd_damage(lv_event_t *e)
 {
     (void)e;
     if (active_enemy_count <= 0) return;
     open_select_screen();
 }
 
-static void event_open_1p_counters(lv_event_t *e)
+static void event_1p_menu_counters(lv_event_t *e)
 {
     (void)e;
     open_1p_counter_menu_screen();
@@ -337,31 +337,40 @@ static void event_back_main(lv_event_t *e)
 }
 
 // ---------- counter row helper ----------
+static const lv_font_t *get_counter_badge_font_1p(const counter_definition_t *definition)
+{
+    if (definition != NULL && definition->icon_text != NULL) {
+        return &mana_counter_icons_16;
+    }
+
+    return &lv_font_montserrat_14;
+}
+
+static const char *get_counter_badge_text_1p(const counter_definition_t *definition)
+{
+    if (definition == NULL) return "?";
+    if (definition->icon_text != NULL) return definition->icon_text;
+    if (definition->badge_text != NULL) return definition->badge_text;
+    return "?";
+}
+
 static void create_counter_row_1p(lv_obj_t *parent, counter_type_t type,
                                   lv_obj_t **row_out, lv_obj_t **value_out)
 {
     const counter_definition_t *definition = get_counter_definition(type);
     lv_obj_t *row;
-    lv_obj_t *icon;
     lv_obj_t *glyph;
 
     row = make_plain_box(parent, 34, 34);
     lv_obj_add_flag(row, LV_OBJ_FLAG_HIDDEN);
 
-    icon = lv_obj_create(row);
-    lv_obj_remove_style_all(icon);
-    lv_obj_set_size(icon, 16, 16);
-    lv_obj_align(icon, LV_ALIGN_TOP_MID, 0, 0);
-    lv_obj_set_style_radius(icon, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_opa(icon, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(icon,
-        definition != NULL ? lv_color_hex(definition->accent_color) : lv_color_hex(0x303030), 0);
-
-    glyph = lv_label_create(icon);
-    lv_label_set_text(glyph, definition != NULL ? definition->badge_text : "?");
+    glyph = lv_label_create(row);
+    lv_label_set_text(glyph, get_counter_badge_text_1p(definition));
     lv_obj_set_style_text_color(glyph, lv_color_white(), 0);
-    lv_obj_set_style_text_font(glyph, &lv_font_montserrat_14, 0);
-    lv_obj_center(glyph);
+    lv_obj_set_style_text_font(glyph,
+        (type == COUNTER_TYPE_POISON) ? &mana_poison_icon_bold_16
+                                      : get_counter_badge_font_1p(definition), 0);
+    lv_obj_align(glyph, LV_ALIGN_TOP_MID, 0, 0);
 
     *value_out = lv_label_create(row);
     lv_label_set_text(*value_out, "0");
@@ -392,10 +401,10 @@ void build_main_screen(void)
     lv_obj_remove_style(arc_life, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(arc_life, LV_OBJ_FLAG_CLICKABLE);
 
-    life_hitbox = make_plain_box(screen_1p, 320, 188);
-    lv_obj_align(life_hitbox, LV_ALIGN_CENTER, 0, -8);
+    life_hitbox = make_plain_box(screen_1p, 360, 360);
+    lv_obj_align(life_hitbox, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_flag(life_hitbox, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(life_hitbox, event_open_select, LV_EVENT_LONG_PRESSED, NULL);
+    lv_obj_add_event_cb(life_hitbox, event_open_1p_menu, LV_EVENT_LONG_PRESSED, NULL);
 
     label_life_total = lv_label_create(screen_1p);
     {
@@ -448,11 +457,17 @@ void build_main_screen(void)
         &counter_row_1p[COUNTER_TYPE_EXPERIENCE],
         &counter_value_1p[COUNTER_TYPE_EXPERIENCE]);
 
-    counter_hitbox = make_plain_box(screen_1p, 180, 50);
-    lv_obj_align(counter_hitbox, LV_ALIGN_TOP_MID, 0, 36);
-    lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_event_cb(counter_hitbox, event_open_1p_counters, LV_EVENT_CLICKED, NULL);
+}
+
+void build_1p_menu_screen(void)
+{
+    quad_item_t items[4] = {
+        {"Commander\nDamage", event_1p_menu_cmd_damage, true,  LV_EVENT_CLICKED},
+        {"Counters",          event_1p_menu_counters,   true,  LV_EVENT_CLICKED},
+        {"",                  NULL,                      false, 0},
+        {"",                  NULL,                      false, 0},
+    };
+    build_quad_screen(&screen_1p_menu, items);
 }
 
 void build_select_screen(void)

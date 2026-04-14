@@ -93,6 +93,8 @@ static void handle_back_navigation(lv_obj_t *screen)
     } else if (screen == screen_custom_life) {
         refresh_game_mode_menu_ui();
         lv_scr_load(screen_game_mode_menu);
+    } else if (screen == screen_1p_menu) {
+        back_to_main();
     } else if (screen == screen_player_menu) {
         open_multiplayer_screen();
     } else if (screen == screen_player_name) {
@@ -148,6 +150,7 @@ void knob_gui(void)
     brightness_apply();
     build_dice_screen();
     build_main_screen();
+    build_1p_menu_screen();
     build_multiplayer_screen();
     build_multiplayer_2p_screen();
     build_multiplayer_3p_screen();
