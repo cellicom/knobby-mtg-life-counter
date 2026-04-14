@@ -22,7 +22,7 @@ SDL_LDFLAGS := -L$(SDL2_ROOT)/lib -lSDL2main -lSDL2
 
 CFLAGS    := -Wall -Wno-unused-function \
              -DLV_CONF_INCLUDE_SIMPLE -DSIMULATOR=1 \
-             -I. -Iesp_stubs -I$(LVGL_PATH) -I$(KNOBBY) \
+             -I. -Iesp_stubs -I$(LVGL_PATH) -I$(KNOBBY) -I$(KNOBBY)/src \
              $(SDL_CFLAGS) \
              -O2 -g
 
@@ -30,12 +30,14 @@ LDFLAGS   := $(SDL_LDFLAGS) -lm
 
 # ---- Source files ----
 
-# Knobby UI/logic files (NOT: knobby.ino, board_detect.c, bidi_switch_knob.c)
-KNOBBY_SRCS := $(addprefix $(KNOBBY)/, \
-	knob.c knob_scr_main.c knob_scr_multiplayer.c knob_scr_menus.c \
-	knob_intro.c knob_timer.c knob_life.c knob_damage_log.c \
-	knob_game_mode.c knob_rename.c knob_dice.c knob_hw.c knob_nvs.c \
-	mana_counter_icons_16.c mana_poison_icon_bold_16.c)
+# Top-level knobby files
+KNOBBY_TOP_SRCS := $(KNOBBY)/knob.c
+
+# Source files in src/
+KNOBBY_SRC_SRCS := $(addprefix $(KNOBBY)/src/, \
+	ui_1p.c ui_mp.c settings.c \
+	intro.c timer.c game.c damage_log.c \
+	game_mode.c rename.c dice.c hw.c storage.c)
 
 # Sim files
 SIM_SRCS := sim_main.c sim_stubs.c
@@ -46,7 +48,7 @@ LVGL_SRCS := $(call rwildcard,$(LVGL_PATH)/src/,*.c)
 
 FONT_SRCS := $(wildcard $(KNOBBY)/src/fonts/*.c)
 
-ALL_SRCS := $(SIM_SRCS) $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
+ALL_SRCS := $(SIM_SRCS) $(KNOBBY_TOP_SRCS) $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
 ALL_SRCS_GUI := sim_sdl2.c sim_stubs.c $(KNOBBY_SRCS) $(FONT_SRCS) $(LVGL_SRCS)
 
 # Object files — flatten into build/ using path-mangled names

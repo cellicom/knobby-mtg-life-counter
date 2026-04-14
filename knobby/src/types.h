@@ -1,5 +1,5 @@
-#ifndef _KNOB_TYPES_H
-#define _KNOB_TYPES_H
+#ifndef _TYPES_H
+#define _TYPES_H
 
 #include "knob.h"
 #include <stdint.h>
@@ -113,7 +113,7 @@ static const uint32_t life_color_table[LIFE_TIER_COUNT][LIFE_VIB_COUNT] = {
     /* dim        mid        vivid */
     {0x4D1C1C, 0xF44336, 0xFF0000},  /* red    */
     {0x4D4D00, 0xFFEB3B, 0xFFFF00},  /* yellow */
-    {0x1A4D1A, 0x4CAF50, 0x00FF00},  /* green  */
+    {0x06D6A0, 0x06D6A0, 0x06D6A0},  /* green  */
     {0x2E004D, 0x7B1FA2, 0xAA00FF},  /* purple */
 };
 
@@ -176,4 +176,4 @@ static inline void load_screen_if_needed(lv_obj_t *screen)
     }
 }
 
-#endif // _KNOB_TYPES_H
+#endif // _TYPES_H
