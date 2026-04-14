@@ -25,6 +25,7 @@ static lv_obj_t *label_multiplayer_all_damage_hint = NULL;
 static lv_obj_t *label_multiplayer_counter_edit_title = NULL;
 static lv_obj_t *label_multiplayer_counter_edit_value = NULL;
 static lv_obj_t *label_multiplayer_counter_edit_hint = NULL;
+static lv_obj_t *label_multiplayer_counter_edit_icon = NULL;
 static lv_obj_t *counter_row_4p[MULTIPLAYER_COUNT][COUNTER_TYPE_COUNT];
 static lv_obj_t *counter_value_4p[MULTIPLAYER_COUNT][COUNTER_TYPE_COUNT];
 
@@ -455,6 +456,15 @@ void refresh_multiplayer_counter_edit_ui(void)
 
     if (definition == NULL) return;
 
+    if (label_multiplayer_counter_edit_icon != NULL) {
+        const lv_font_t *icon_font = (multiplayer_counter_edit_type == COUNTER_TYPE_POISON)
+                                      ? &mana_poison_icon_bold_16
+                                      : &mana_counter_icons_16;
+        lv_label_set_text(label_multiplayer_counter_edit_icon,
+            definition->icon_text ? definition->icon_text : "");
+        lv_obj_set_style_text_font(label_multiplayer_counter_edit_icon, icon_font, 0);
+    }
+
     if (label_multiplayer_counter_edit_title != NULL) {
         snprintf(title_buf, sizeof(title_buf), "%s\n%s",
             multiplayer_names[multiplayer_menu_player], definition->display_name);
@@ -734,12 +744,32 @@ void build_multiplayer_menu_screen(void)
 
 void build_multiplayer_counter_menu_screen(void)
 {
-    quad_item_t items[4] = {
-        {"Commander\nTax", event_multiplayer_counter_commander_tax, true, LV_EVENT_CLICKED},
-        {"Partner\nTax", event_multiplayer_counter_partner_tax, true, LV_EVENT_CLICKED},
-        {"Poison", event_multiplayer_counter_poison, true, LV_EVENT_CLICKED},
-        {"Experience", event_multiplayer_counter_experience, true, LV_EVENT_CLICKED},
+    int i;
+    static const counter_type_t types[4] = {
+        COUNTER_TYPE_COMMANDER_TAX,
+        COUNTER_TYPE_PARTNER_TAX,
+        COUNTER_TYPE_POISON,
+        COUNTER_TYPE_EXPERIENCE,
     };
+    lv_event_cb_t const cbs[4] = {
+        event_multiplayer_counter_commander_tax,
+        event_multiplayer_counter_partner_tax,
+        event_multiplayer_counter_poison,
+        event_multiplayer_counter_experience,
+    };
+    quad_item_t items[4];
+
+    for (i = 0; i < 4; i++) {
+        const counter_definition_t *def = get_counter_definition(types[i]);
+        items[i].label      = def->menu_label;
+        items[i].cb         = cbs[i];
+        items[i].enabled    = true;
+        items[i].event      = LV_EVENT_CLICKED;
+        items[i].icon       = def->icon_text;
+        items[i].icon_font  = (types[i] == COUNTER_TYPE_POISON)
+                              ? &mana_poison_icon_bold_16
+                              : &mana_counter_icons_16;
+    }
 
     build_quad_screen(&screen_player_counters_menu, items);
 }
@@ -781,6 +811,12 @@ void build_multiplayer_counter_edit_screen(void)
     lv_obj_set_style_bg_color(screen_player_counter_edit, lv_color_black(), 0);
     lv_obj_set_style_border_width(screen_player_counter_edit, 0, 0);
     lv_obj_set_scrollbar_mode(screen_player_counter_edit, LV_SCROLLBAR_MODE_OFF);
+
+    label_multiplayer_counter_edit_icon = lv_label_create(screen_player_counter_edit);
+    lv_label_set_text(label_multiplayer_counter_edit_icon, "");
+    lv_obj_set_style_text_color(label_multiplayer_counter_edit_icon, lv_color_white(), 0);
+    lv_obj_set_style_text_font(label_multiplayer_counter_edit_icon, &mana_counter_icons_16, 0);
+    lv_obj_align(label_multiplayer_counter_edit_icon, LV_ALIGN_TOP_MID, 0, 12);
 
     label_multiplayer_counter_edit_title = lv_label_create(screen_player_counter_edit);
     lv_label_set_text(label_multiplayer_counter_edit_title, "P1\nCommander Tax");
