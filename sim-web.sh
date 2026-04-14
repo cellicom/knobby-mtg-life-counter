@@ -2,10 +2,11 @@
 # sim-web.sh - Launch the real Knobby web simulator in browser
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export VERBOSE="${VERBOSE:-1}"
 . "$SCRIPT_DIR/config.sh"
 
 if [ ! -f "$SCRIPT_DIR/sim/knobby_web.wasm" ]; then
-    echo "ERROR: knobby_web.wasm not found. Run compile.sh first to compile." >&2
+    echo "[ERROR] knobby_web.wasm not found. Run ./compile.sh first to compile." >&2
     exit 1
 fi
 

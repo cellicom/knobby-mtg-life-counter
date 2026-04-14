@@ -69,7 +69,17 @@ fi
 # ── User overrides ────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$SCRIPT_DIR/config.local.sh" ]; then
+    [ "$VERBOSE" = "1" ] && echo "[DEBUG] Loading config.local.sh"
     . "$SCRIPT_DIR/config.local.sh"
+fi
+
+if [ "$VERBOSE" = "1" ]; then
+    echo "[DEBUG] Detected Configuration:"
+    echo "  - LVGL_PATH: $LVGL_PATH"
+    echo "  - PYTHON:    $PYTHON"
+    echo "  - CC:        $CC"
+    echo "  - MAKE:      $MAKE"
+    echo "  - EMCC:      ${EMCC:-Not Found}"
 fi
 
 export LVGL_PATH PYTHON CC MAKE EMCC
