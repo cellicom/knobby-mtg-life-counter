@@ -1,4 +1,5 @@
 #include "knob_scr_main.h"
+#include "knob_scr_menus.h"
 #include "knob_scr_multiplayer.h"
 #include "knob_life.h"
 #include "knob_timer.h"
@@ -9,6 +10,7 @@ extern lv_obj_t *screen_4p;
 
 // ---------- screens ----------
 lv_obj_t *screen_1p = NULL;
+lv_obj_t *screen_1p_menu = NULL;
 lv_obj_t *screen_select = NULL;
 lv_obj_t *screen_damage = NULL;
 
@@ -24,7 +26,6 @@ static lv_obj_t *turn_live_dot = NULL;
 // ---------- 1p counter widgets ----------
 static lv_obj_t *counter_row_1p[COUNTER_TYPE_COUNT];
 static lv_obj_t *counter_value_1p[COUNTER_TYPE_COUNT];
-static lv_obj_t *counter_hitbox = NULL;
 
 // ---------- select UI ----------
 static lv_obj_t *label_select_title = NULL;
@@ -165,13 +166,6 @@ static void refresh_1p_counters(void)
         lv_obj_align(counter_row_1p[counter_type], LV_ALIGN_TOP_MID, x_offset, counter_y);
     }
 
-    if (counter_hitbox != NULL) {
-        if (visible_count > 0) {
-            lv_obj_clear_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-        } else {
-            lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-        }
-    }
 }
 
 void refresh_main_ui(void)
@@ -294,14 +288,20 @@ static void open_damage_screen(int enemy_index)
 }
 
 // ---------- events ----------
-static void event_open_select(lv_event_t *e)
+static void event_open_1p_menu(lv_event_t *e)
+{
+    (void)e;
+    load_screen_if_needed(screen_1p_menu);
+}
+
+static void event_1p_menu_cmd_damage(lv_event_t *e)
 {
     (void)e;
     if (active_enemy_count <= 0) return;
     open_select_screen();
 }
 
-static void event_open_1p_counters(lv_event_t *e)
+static void event_1p_menu_counters(lv_event_t *e)
 {
     (void)e;
     open_1p_counter_menu_screen();
@@ -401,10 +401,10 @@ void build_main_screen(void)
     lv_obj_remove_style(arc_life, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(arc_life, LV_OBJ_FLAG_CLICKABLE);
 
-    life_hitbox = make_plain_box(screen_1p, 320, 188);
-    lv_obj_align(life_hitbox, LV_ALIGN_CENTER, 0, -8);
+    life_hitbox = make_plain_box(screen_1p, 360, 360);
+    lv_obj_align(life_hitbox, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_flag(life_hitbox, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(life_hitbox, event_open_select, LV_EVENT_LONG_PRESSED, NULL);
+    lv_obj_add_event_cb(life_hitbox, event_open_1p_menu, LV_EVENT_LONG_PRESSED, NULL);
 
     label_life_total = lv_label_create(screen_1p);
     {
@@ -457,11 +457,17 @@ void build_main_screen(void)
         &counter_row_1p[COUNTER_TYPE_EXPERIENCE],
         &counter_value_1p[COUNTER_TYPE_EXPERIENCE]);
 
-    counter_hitbox = make_plain_box(screen_1p, 180, 50);
-    lv_obj_align(counter_hitbox, LV_ALIGN_TOP_MID, 0, 36);
-    lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(counter_hitbox, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_event_cb(counter_hitbox, event_open_1p_counters, LV_EVENT_CLICKED, NULL);
+}
+
+void build_1p_menu_screen(void)
+{
+    quad_item_t items[4] = {
+        {"Commander\nDamage", event_1p_menu_cmd_damage, true,  LV_EVENT_CLICKED},
+        {"Counters",          event_1p_menu_counters,   true,  LV_EVENT_CLICKED},
+        {"",                  NULL,                      false, 0},
+        {"",                  NULL,                      false, 0},
+    };
+    build_quad_screen(&screen_1p_menu, items);
 }
 
 void build_select_screen(void)
