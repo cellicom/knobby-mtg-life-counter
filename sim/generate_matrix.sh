@@ -110,8 +110,9 @@ for track in 2 3 4; do
 done
 
 # ============================================================
-# 6. Random counters — multiplayer × orientations
+# 6. Random counters — multiplayer × orientations + 1p
 # ============================================================
+shot "1p_counters.png" --screen 1p --random-counters
 for track in 2 3 4; do
     for orient in 0 1 2; do
         orient_name=("absolute" "centric" "tabletop")
@@ -222,7 +223,8 @@ done
 # Timer with preview delta +444
 shot "1p_timer_preview_p444.png" --screen 1p --track 1 \
     --preview-delta +444 --preview-player -1 \
-    --turn-number $((RANDOM % 31)) --turn-elapsed $((RANDOM % 21600 * 1000))
+    --turn-number $((RANDOM % 31)) --turn-elapsed $((RANDOM % 21600 * 1000)) \
+    --random-counters
 
 # ============================================================
 # 20. Intro screen
