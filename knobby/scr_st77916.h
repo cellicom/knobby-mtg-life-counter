@@ -22,7 +22,6 @@ static lv_disp_draw_buf_t draw_buf;
 static lv_disp_drv_t disp_drv;
 static lv_indev_t *indev_touchpad;
 lv_indev_t *indev_knob;
-static ESP_PanelBacklightPWM_LEDC *backlight = NULL;
 static ESP_PanelLcd *lcd = NULL;
 static ESP_PanelTouch *touch = NULL;
 static int32_t ctx_diff;
@@ -289,23 +288,6 @@ void setRotation(uint8_t rot)
   }
 }
 
-void screen_switch(bool on)
-{
-  if (NULL == backlight)
-    return;
-  if (on)
-    backlight->on();
-  else
-    backlight->off();
-}
-
-// 输入值为0-100
-void set_brightness(uint8_t bri)
-{
-  if (NULL == backlight)
-    return;
-  backlight->setBrightness(bri);
-}
 
 static bool tp_tracking = false;
 static bool tp_swiped = false;
@@ -497,9 +479,6 @@ void scr_lvgl_init()
 
   ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
-  backlight = new ESP_PanelBacklightPWM_LEDC(TFT_BLK, 1);
-  backlight->begin();
-  backlight->off();
 
   ESP_PanelBusI2C *touch_bus = new ESP_PanelBusI2C(TOUCH_PIN_NUM_I2C_SCL, TOUCH_PIN_NUM_I2C_SDA, ESP_LCD_TOUCH_IO_I2C_CST816S_CONFIG());
   // touch_bus->configI2C_Address(0x15);
@@ -540,7 +519,6 @@ void scr_lvgl_init()
   }
   lcd->displayOn();
 
-  screen_switch(true);
 
   size_t lv_cache_rows = 72;
 
