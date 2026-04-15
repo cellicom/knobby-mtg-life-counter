@@ -277,6 +277,22 @@ shot "1p_timer_preview_p444.png" --screen 1p --track 1 \
 shot "intro.png" --screen intro
 
 # ============================================================
+# 21. Mana Pool
+# ============================================================
+shot "mana_empty.png" --screen mana
+shot "mana_sel_white.png" --screen mana --mana 44,7,0,12,3,21 --mana-selected 0
+shot "mana_sel_blue.png" --screen mana --mana 2,44,5,0,18,9 --mana-selected 1
+shot "mana_sel_black.png" --screen mana --mana 8,3,44,15,0,6 --mana-selected 2
+shot "mana_sel_red.png" --screen mana --mana 0,11,4,44,7,33 --mana-selected 3
+shot "mana_sel_green.png" --screen mana --mana 14,0,9,3,44,1 --mana-selected 4
+shot "mana_sel_colorless.png" --screen mana --mana 6,22,1,8,0,44 --mana-selected 5
+shot "mana_3digit.png" --screen mana --mana 444,77,0,123,8,444 --mana-selected 0
+shot "mana_preview_pos.png" --screen mana --mana 5,3,0,7,2,1 --mana-selected 1 --mana-delta 12
+shot "mana_preview_neg.png" --screen mana --mana 5,3,0,7,2,1 --mana-selected 3 --mana-delta -4
+shot "mana_preview_max.png" --screen mana --mana 0,0,0,0,0,0 --mana-selected 0 --mana-delta 444
+shot "mana_preview_clamp.png" --screen mana --mana 3,0,0,0,0,0 --mana-selected 0 --mana-delta -99
+
+# ============================================================
 # Generate index.html
 # ============================================================
 INDEX="$OUT/index.html"
@@ -322,6 +338,7 @@ SEC_1P_PREV=(); SEC_2P_PREV=(); SEC_3P_PREV=(); SEC_4P_PREV=()
 SEC_LIFE=(); SEC_LIFECOLOR=(); SEC_PERPLAYER=(); SEC_SELECTED=(); SEC_COUNTERS=()
 SEC_BRIGHT=(); SEC_COUNTER_EDIT=(); SEC_DAMAGE=(); SEC_SETTINGS=()
 SEC_TIMER=()
+SEC_MANA=()
 SEC_OTHER=()
 
 for f in "${FILES[@]}"; do
@@ -340,6 +357,7 @@ for f in "${FILES[@]}"; do
         counter_edit_*)       SEC_COUNTER_EDIT+=("$f") ;;
         damage_*|select_*|all_damage_*) SEC_DAMAGE+=("$f") ;;
         settings_*)           SEC_SETTINGS+=("$f") ;;
+        mana_*)               SEC_MANA+=("$f") ;;
         *)                    SEC_OTHER+=("$f") ;;
     esac
 done
@@ -358,6 +376,7 @@ write_section "Brightness" "${SEC_BRIGHT[@]}"
 write_section "Counter Edit" "${SEC_COUNTER_EDIT[@]}"
 write_section "Damage / Select" "${SEC_DAMAGE[@]}"
 write_section "Settings" "${SEC_SETTINGS[@]}"
+write_section "Mana Pool" "${SEC_MANA[@]}"
 write_section "Other" "${SEC_OTHER[@]}"
 
 echo '</body></html>' >> "$INDEX"
