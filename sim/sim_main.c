@@ -187,9 +187,9 @@ static void print_usage(void)
            "  --outdir <path>        Output directory (default: screenshots)\n"
            "  --output <filename>    Output filename (overrides default naming)\n"
            "\nGame state:\n"
-           "  --life <p1,p2,p3,p4>  Set player life totals (default: starting-life for all)\n"
-           "  --names <p1,p2,p3,p4> Set player names (default: P1,P2,P3,P4)\n"
-           "  --players <n>          Number of players in the game, 1-4 (default: 4)\n"
+           "  --life <p1,p2,...>     Set player life totals (default: starting-life for all)\n"
+           "  --names <p1,p2,...>    Set player names (default: P1..P8)\n"
+           "  --players <n>          Number of players in the game, 1-8 (default: 4)\n"
            "  --track <n>            Players shown on screen, 1-4 (default: 4)\n"
            "  --starting-life <n>    Starting/max life total (default: 40)\n"
            "  --selected <n>         Which player is selected, -1=none (default: -1)\n"
@@ -259,7 +259,7 @@ static void parse_csv_strings(const char *csv, char names[][16], int max_count)
 static void populate_random_counters(void)
 {
     int p, t;
-    for (p = 0; p < MAX_PLAYERS; p++)
+    for (p = 0; p < MAX_DISPLAY_PLAYERS; p++)
         for (t = 0; t < COUNTER_TYPE_COUNT; t++)
             player_counters[p][t] = rand() % 100;
 }
@@ -287,9 +287,9 @@ int main(int argc, char *argv[])
     const char *screen_name = "main";
     const char *outdir = "screenshots";
     const char *output_filename = NULL;
-    int life_values[MAX_PLAYERS] = {0};
+    int life_values[MAX_DISPLAY_PLAYERS] = {0};
     int life_set = 0;
-    char name_values[MAX_PLAYERS][16] = {{0}};
+    char name_values[MAX_GAME_PLAYERS][16] = {{0}};
     int names_set = 0;
     int selected_val = -1;
     int selected_set = 0;
@@ -309,9 +309,9 @@ int main(int argc, char *argv[])
     int all_damage_set = 0;
     int menu_player_val = 0;
     int menu_player_set = 0;
-    int player_color_values[MAX_PLAYERS] = {0, 1, 2, 3};
+    int player_color_values[MAX_DISPLAY_PLAYERS] = {0, 1, 2, 3};
     int player_colors_set = 0;
-    int player_override_values[MAX_PLAYERS] = {0, 0, 0, 0};
+    int player_override_values[MAX_DISPLAY_PLAYERS] = {0, 0, 0, 0};
     int player_override_set = 0;
     int brightness_val = 0;
     int brightness_set = 0;
@@ -329,10 +329,10 @@ int main(int argc, char *argv[])
         if (strcmp(argv[i], "--screen") == 0 && i + 1 < argc) {
             screen_name = argv[++i];
         } else if (strcmp(argv[i], "--life") == 0 && i + 1 < argc) {
-            parse_csv_ints(argv[++i], life_values, MAX_PLAYERS);
+            parse_csv_ints(argv[++i], life_values, MAX_DISPLAY_PLAYERS);
             life_set = 1;
         } else if (strcmp(argv[i], "--names") == 0 && i + 1 < argc) {
-            parse_csv_strings(argv[++i], name_values, MAX_PLAYERS);
+            parse_csv_strings(argv[++i], name_values, MAX_GAME_PLAYERS);
             names_set = 1;
         } else if (strcmp(argv[i], "--players") == 0 && i + 1 < argc) {
             sim_nvs_preset_i8("num_players", (int8_t)atoi(argv[++i]));
@@ -382,10 +382,10 @@ int main(int argc, char *argv[])
             menu_player_val = atoi(argv[++i]);
             menu_player_set = 1;
         } else if (strcmp(argv[i], "--player-colors") == 0 && i + 1 < argc) {
-            parse_csv_ints(argv[++i], player_color_values, MAX_PLAYERS);
+            parse_csv_ints(argv[++i], player_color_values, MAX_DISPLAY_PLAYERS);
             player_colors_set = 1;
         } else if (strcmp(argv[i], "--player-override") == 0 && i + 1 < argc) {
-            parse_csv_ints(argv[++i], player_override_values, MAX_PLAYERS);
+            parse_csv_ints(argv[++i], player_override_values, MAX_DISPLAY_PLAYERS);
             player_override_set = 1;
         } else if (strcmp(argv[i], "--battery-voltage") == 0 && i + 1 < argc) {
             sim_battery_voltage = (float)atof(argv[++i]);
@@ -429,11 +429,11 @@ int main(int argc, char *argv[])
     /* Apply RAM-only overrides after navigation */
     #define APPLY_RAM_OVERRIDES() do { \
         if (life_set) { \
-            for (i = 0; i < MAX_PLAYERS; i++) \
+            for (i = 0; i < MAX_DISPLAY_PLAYERS; i++) \
                 player_life[i] = life_values[i]; \
         } \
         if (names_set) { \
-            for (i = 0; i < MAX_PLAYERS; i++) { \
+            for (i = 0; i < MAX_GAME_PLAYERS; i++) { \
                 if (name_values[i][0]) \
                     snprintf(player_names[i], sizeof(player_names[i]), "%s", name_values[i]); \
             } \
@@ -474,11 +474,11 @@ int main(int argc, char *argv[])
             menu_player = menu_player_val; \
         } \
         if (player_colors_set) { \
-            for (i = 0; i < MAX_PLAYERS; i++) \
+            for (i = 0; i < MAX_DISPLAY_PLAYERS; i++) \
                 player_color_index[i] = player_color_values[i]; \
         } \
         if (player_override_set) { \
-            for (i = 0; i < MAX_PLAYERS; i++) \
+            for (i = 0; i < MAX_DISPLAY_PLAYERS; i++) \
                 player_has_override[i] = (bool)player_override_values[i]; \
         } \
         if (do_random_counters) \
@@ -497,6 +497,8 @@ int main(int argc, char *argv[])
             else \
                 turn_elapsed_ms = 0; \
         } \
+        for (i = 0; i < MAX_DISPLAY_PLAYERS; i++) \
+            check_player_elimination(i); \
         refresh_main_ui(); \
         lv_obj_update_layout(lv_scr_act()); \
         refresh_multiplayer_ui(); \
