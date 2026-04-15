@@ -73,6 +73,39 @@ make generate-matrix
 
 Run `sim/knobby_sim --help` for all CLI options. See [sim/screenshots/README.md](sim/screenshots/README.md) for details.
 
+## 🕹️ Simulators
+
+You can test the Knobby interface on your PC or in a browser without hardware. 
+Both **`make`** commands and **`./*.sh`** scripts are provided for convenience.
+
+### Web Simulator (WASM) 🌐
+Runs the **actual C firmware** compiled to WebAssembly directly in the browser.
+- **Run server:** `make sim-web-run` (or `./sim-web.sh`)
+- **Build from source:** `make sim-web-build` (or `./compile.sh`)
+
+*Open [http://localhost:8000/sim/index.html](http://localhost:8000/sim/index.html) after starting the server.*
+
+> [!Note]
+> A pre-compiled `knobby_web.wasm` is already included. You only need to install Emscripten if you want to recompile from source.
+
+#### Installing Emscripten (for recompilation)
+```sh
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh   # or emsdk_env.bat on Windows
+```
+
+### PC Simulator (Native) 💻
+A native application for local interactive development.
+- **Run:** `make sim` (or `./sim.sh`)
+
+**Controls:**
+- **Touch:** Left Click
+- **Knob:** Mouse Wheel / Left & Right Arrows
+- **Swipe:** Up & Down Arrows | L & R keys
+
 ## 🧑‍🤝‍🧑 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)

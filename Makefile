@@ -1,13 +1,18 @@
 # Knobby MTG Life Counter
 # Top-level Makefile for firmware and simulator targets
 
+-include config.mk
+
+# Default paths if config.mk not present
+MAKE ?= make
+
 # ---- Arduino CLI ----
-ARDUINO_CLI := $(shell which arduino-cli 2>/dev/null)
+ARDUINO_CLI ?= "C:\Program Files\Arduino CLI\arduino-cli.exe"
 FQBN        := esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=qio
 EXTRA_URLS  := https://espressif.github.io/arduino-esp32/package_esp32_index.json
 
 .PHONY: help firmware firmware-flash firmware-deps check-arduino \
-        screenshot generate-matrix sim-clean clean
+        screenshot generate-matrix sim sim-gui sim-clean clean
 
 help:
 	@echo "Knobby MTG Life Counter"
@@ -22,10 +27,18 @@ help:
 	@echo "  make screenshot ARGS=\"--screen 4p\" - Screenshot specific screen"
 	@echo "  make generate-matrix               - Generate full screenshot matrix"
 	@echo ""
-	@echo "  make clean                         - Remove all build artifacts"
 	@echo "  make help                          - Show this message"
 	@echo ""
+	@echo "Interactive Simulator (PC):"
+	@echo "  make sim                           - Build and run interactive SDL2 simulator"
+	@echo "  make sim-gui                       - (alias for make sim)"
+	@echo ""
+	@echo "Interactive Simulator (Web):"
+	@echo "  make sim-web-build                 - Build WASM simulator (requires Emscripten)"
+	@echo "  make sim-web-run                   - Run Web simulator in browser (requires Python)"
+	@echo ""
 	@echo "Run sim/knobby_sim --help for all screenshot CLI options"
+	@echo ""
 
 # ---- Firmware targets ----
 
@@ -56,7 +69,20 @@ firmware-flash: check-arduino
 	fi
 	$(ARDUINO_CLI) upload --fqbn "$(FQBN)" -p $(PORT) knobby
 
-# ---- Screenshot targets (delegate to sim/) ----
+# ---- Simulator targets (delegate to sim/) ----
+
+sim:
+	$(MAKE) -C sim gui
+
+sim-gui: sim
+
+sim-web-build:
+	$(MAKE) -C sim web
+
+sim-web-run:
+	@echo "[INFO] Avvio server web locale..."
+	@echo "[INFO] Premi Ctrl+C per fermare il server."
+	$(PYTHON) -m http.server 8000 --directory .
 
 screenshot:
 	$(MAKE) -C sim screenshot ARGS="$(ARGS)"
