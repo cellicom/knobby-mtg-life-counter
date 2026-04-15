@@ -21,7 +21,7 @@ shot() {
 # ============================================================
 # 1. Life preview deltas — 1p mode
 # ============================================================
-for delta in +444 -444 +12 -12 +1 -1; do
+for delta in +444 -444 +1; do
     tag=$(echo "$delta" | tr '+' 'p' | tr '-' 'n')
     shot "1p_preview_${tag}.png" --screen 1p --track 1 \
         --preview-delta "$delta" --preview-player -1
@@ -30,63 +30,80 @@ done
 # ============================================================
 # 2. Life preview deltas — multiplayer modes × orientations
 # ============================================================
+# Worst-case (+444) in every quadrant × orientation to catch overlap/clipping
 for track in 2 3 4; do
     max_player=$((track - 1))
     for orient in 0 1 2; do
         orient_name=("absolute" "centric" "tabletop")
         oname=${orient_name[$orient]}
         for player in $(seq 0 $max_player); do
-            for delta in +444 -444 +12 -12 +1 -1; do
-                tag=$(echo "$delta" | tr '+' 'p' | tr '-' 'n')
-                shot "${track}p_${oname}_p${player}_preview_${tag}.png" \
-                    --screen ${track}p --track "$track" --orientation "$orient" \
-                    --preview-delta "$delta" --preview-player "$player"
-            done
+            shot "${track}p_${oname}_p${player}_preview_p444.png" \
+                --screen ${track}p --track "$track" --orientation "$orient" \
+                --preview-delta +444 --preview-player "$player"
         done
+    done
+done
+# Remaining deltas for player 0 at absolute orientation (formatting coverage)
+for track in 2 3 4; do
+    for delta in -444 +1 -1 +12 -12; do
+        tag=$(echo "$delta" | tr '+' 'p' | tr '-' 'n')
+        shot "${track}p_absolute_p0_preview_${tag}.png" \
+            --screen ${track}p --track "$track" --orientation 0 \
+            --preview-delta "$delta" --preview-player 0
     done
 done
 
 # ============================================================
 # 3. Life totals at specific values — all player modes × orientations
 # ============================================================
-for life in 0 20 40 444; do
-    # 1p
-    shot "1p_life${life}.png" --screen 1p --track 1 \
-        --starting-life "$life" --life "$life"
+# All life values at one orientation (color tier coverage)
+for life in -5 0 20 40 444; do
+    ltag=$life
+    [ "$life" -lt 0 ] && ltag="n${life#-}"
+    shot "1p_life${ltag}.png" --screen 1p --track 1 \
+        --starting-life 40 --life "$life"
+
+    # 1p — custom color override
+    shot "1p_custom_life${ltag}.png" --screen 1p --track 1 \
+        --starting-life 40 --life "$life" \
+        --player-override 1,0,0,0 --player-colors 4,0,0,0
 
     # multiplayer — player colors
     for track in 2 3 4; do
         life_csv=$(printf "%s" "$life"; for j in $(seq 2 $track); do printf ",%s" "$life"; done)
-        for orient in 0 1 2; do
+        shot "${track}p_absolute_life${ltag}.png" \
+            --screen ${track}p --track "$track" --orientation 0 \
+            --starting-life 40 --life "$life_csv"
+    done
+done
+# Worst-case widths (444, -5) across all orientations for clipping detection
+for life in -5 444; do
+    ltag=$life
+    [ "$life" -lt 0 ] && ltag="n${life#-}"
+    for track in 2 3 4; do
+        life_csv=$(printf "%s" "$life"; for j in $(seq 2 $track); do printf ",%s" "$life"; done)
+        for orient in 1 2; do
             orient_name=("absolute" "centric" "tabletop")
             oname=${orient_name[$orient]}
-            shot "${track}p_${oname}_life${life}.png" \
+            shot "${track}p_${oname}_life${ltag}.png" \
                 --screen ${track}p --track "$track" --orientation "$orient" \
-                --starting-life "$life" --life "$life_csv"
+                --starting-life 40 --life "$life_csv"
         done
     done
 done
 
 # ============================================================
-# 4. Life-color mode — multiplayer × orientations × varied life
+# 4. Life-color mode — multiplayer × orientations × mixed life
 # ============================================================
 for track in 2 3 4; do
+    case "$track" in
+        2) life_csv="5,35" ;;
+        3) life_csv="5,20,35" ;;
+        4) life_csv="5,15,35,50" ;;
+    esac
     for orient in 0 1 2; do
         orient_name=("absolute" "centric" "tabletop")
         oname=${orient_name[$orient]}
-
-        # All at 40 (green)
-        life_csv=$(printf "40"; for j in $(seq 2 $track); do printf ",40"; done)
-        shot "${track}p_${oname}_lifecolor_40.png" \
-            --screen ${track}p --track "$track" --orientation "$orient" \
-            --color-mode 1 --starting-life 40 --life "$life_csv"
-
-        # Mixed: each player at a different tier
-        case "$track" in
-            2) life_csv="5,35" ;;
-            3) life_csv="5,20,35" ;;
-            4) life_csv="5,15,35,50" ;;
-        esac
         shot "${track}p_${oname}_lifecolor_mixed.png" \
             --screen ${track}p --track "$track" --orientation "$orient" \
             --color-mode 1 --starting-life 40 --life "$life_csv"
@@ -94,18 +111,14 @@ for track in 2 3 4; do
 done
 
 # ============================================================
-# 5. Selected player (no preview) — multiplayer × orientations
+# 5. Selected player (no preview) — multiplayer, one orientation
 # ============================================================
 for track in 2 3 4; do
     max_player=$((track - 1))
-    for orient in 0 1 2; do
-        orient_name=("absolute" "centric" "tabletop")
-        oname=${orient_name[$orient]}
-        for player in $(seq 0 $max_player); do
-            shot "${track}p_${oname}_selected_p${player}.png" \
-                --screen ${track}p --track "$track" --orientation "$orient" \
-                --selected "$player"
-        done
+    for player in $(seq 0 $max_player); do
+        shot "${track}p_absolute_selected_p${player}.png" \
+            --screen ${track}p --track "$track" --orientation 0 \
+            --selected "$player"
     done
 done
 
@@ -162,7 +175,31 @@ shot "game_mode_2p_20.png" --screen game-mode --players 2 --track 2 --starting-l
 shot "game_mode_3p_30.png" --screen game-mode --players 3 --track 3 --starting-life 30
 
 # ============================================================
-# 13. Settings pages with different toggle states
+# 13. Per-player color mode
+# ============================================================
+for track in 2 3 4; do
+    for orient in 0 1 2; do
+        orient_name=("absolute" "centric" "tabletop")
+        oname=${orient_name[$orient]}
+        case "$track" in
+            2) colors="5,9";       overrides="1,1" ;;
+            3) colors="5,9,0";     overrides="1,1,0" ;;
+            4) colors="0,5,7,9";   overrides="0,1,1,1" ;;
+        esac
+        shot "${track}p_${oname}_perplayer.png" \
+            --screen ${track}p --track "$track" --orientation "$orient" \
+            --player-colors "$colors" --player-override "$overrides"
+    done
+done
+
+# ============================================================
+# 14. Color menu and picker screens
+# ============================================================
+shot "color_menu.png" --screen color-menu --menu-player 0
+shot "color_picker.png" --screen color-picker --menu-player 0
+
+# ============================================================
+# 15. Settings pages with different toggle states
 # ============================================================
 for dim in 0 1 2 3; do
     dim_name=("off" "15s" "30s" "60s")
@@ -171,14 +208,22 @@ done
 
 for cm in 0 1; do
     cm_name=("player" "life")
-    for dt in 0 1 2 3; do
-        dt_name=("never" "5s" "15s" "30s")
-        for rot in 0 1 2; do
-            rot_name=("absolute" "centric" "tabletop")
-            shot "settings_more_cm${cm_name[$cm]}_ds${dt_name[$dt]}_${rot_name[$rot]}.png" \
-                --screen settings-more --color-mode "$cm" --deselect "$dt" --orientation "$rot"
-        done
-    done
+    shot "settings_more_cm${cm_name[$cm]}.png" --screen settings-more --color-mode "$cm"
+done
+
+for dt in 0 1 2 3; do
+    dt_name=("never" "5s" "15s" "30s")
+    shot "settings_more_ds${dt_name[$dt]}.png" --screen settings-more --deselect "$dt"
+done
+
+for rot in 0 1 2; do
+    rot_name=("absolute" "centric" "tabletop")
+    shot "settings_more_orient_${rot_name[$rot]}.png" --screen settings-more --orientation "$rot"
+done
+
+for ae in 0 1; do
+    ae_name=("aeoff" "aeon")
+    shot "settings_more_${ae_name[$ae]}.png" --screen settings-more --auto-eliminate "$ae"
 done
 
 # ============================================================
@@ -212,11 +257,11 @@ shot "dice_$((RANDOM % 20 + 1)).png" --screen dice --dice $((RANDOM % 20 + 1))
 shot "damage_log_random.png" --screen damage-log --random-log
 
 # ============================================================
-# 19. Timer overlay — 1p mode at various life totals
+# 19. Timer overlay — 1p mode at worst-case life totals
 # ============================================================
-for life in 0 20 40 444; do
+for life in 0 444; do
     shot "1p_timer_life${life}.png" --screen 1p --track 1 \
-        --starting-life "$life" --life "$life" \
+        --starting-life 40 --life "$life" \
         --turn-number $((RANDOM % 31)) --turn-elapsed $((RANDOM % 21600 * 1000))
 done
 
@@ -274,7 +319,7 @@ write_section() {
 
 # Sort files into sections
 SEC_1P_PREV=(); SEC_2P_PREV=(); SEC_3P_PREV=(); SEC_4P_PREV=()
-SEC_LIFE=(); SEC_LIFECOLOR=(); SEC_SELECTED=(); SEC_COUNTERS=()
+SEC_LIFE=(); SEC_LIFECOLOR=(); SEC_PERPLAYER=(); SEC_SELECTED=(); SEC_COUNTERS=()
 SEC_BRIGHT=(); SEC_COUNTER_EDIT=(); SEC_DAMAGE=(); SEC_SETTINGS=()
 SEC_TIMER=()
 SEC_OTHER=()
@@ -287,7 +332,8 @@ for f in "${FILES[@]}"; do
         4p_*_preview_*)       SEC_4P_PREV+=("$f") ;;
         1p_timer_*)           SEC_TIMER+=("$f") ;;
         *_lifecolor_*)        SEC_LIFECOLOR+=("$f") ;;
-        *_life[0-9]*)         SEC_LIFE+=("$f") ;;
+        *_perplayer*)         SEC_PERPLAYER+=("$f") ;;
+        *_life[0-9n]*)        SEC_LIFE+=("$f") ;;
         *_selected_*)         SEC_SELECTED+=("$f") ;;
         *_counters.png)       SEC_COUNTERS+=("$f") ;;
         brightness_*)         SEC_BRIGHT+=("$f") ;;
@@ -305,6 +351,7 @@ write_section "4-Player Life Preview" "${SEC_4P_PREV[@]}"
 write_section "1-Player Timer Overlay" "${SEC_TIMER[@]}"
 write_section "Life Totals (Player Colors)" "${SEC_LIFE[@]}"
 write_section "Life Totals (Life Colors)" "${SEC_LIFECOLOR[@]}"
+write_section "Life Totals (Per-Player Colors)" "${SEC_PERPLAYER[@]}"
 write_section "Selected Player" "${SEC_SELECTED[@]}"
 write_section "Player Counters" "${SEC_COUNTERS[@]}"
 write_section "Brightness" "${SEC_BRIGHT[@]}"
