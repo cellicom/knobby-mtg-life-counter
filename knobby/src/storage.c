@@ -52,8 +52,8 @@ void knob_nvs_init(void)
                 : (rot_val >= ORIENTATION_MODE_COUNT) ? ORIENTATION_MODE_ABSOLUTE
                                    : rot_val;
         cached_brightness = clamp_brightness(bri_val);
-        cached_num_players = (np_val < 1) ? 1 : (np_val > MAX_PLAYERS) ? MAX_PLAYERS : np_val;
-        cached_players_to_track = (pt_val < 1) ? 1 : (pt_val > 4) ? 4 : pt_val;
+        cached_num_players = (np_val < 1) ? 1 : (np_val > MAX_GAME_PLAYERS) ? MAX_GAME_PLAYERS : np_val;
+        cached_players_to_track = (pt_val < 1) ? 1 : (pt_val > MAX_DISPLAY_PLAYERS) ? MAX_DISPLAY_PLAYERS : pt_val;
         cached_life_total = (lt_val < 0) ? 0 : (lt_val > LIFE_MAX) ? LIFE_MAX : lt_val;
 
         int8_t ae_val = 1;
@@ -136,7 +136,7 @@ int nvs_get_num_players(void)
 
 void nvs_set_num_players(int value)
 {
-    cached_num_players = (value < 1) ? 1 : (value > MAX_PLAYERS) ? MAX_PLAYERS : value;
+    cached_num_players = (value < 1) ? 1 : (value > MAX_GAME_PLAYERS) ? MAX_GAME_PLAYERS : value;
     settings_dirty = true;
 }
 
@@ -147,7 +147,7 @@ int nvs_get_players_to_track(void)
 
 void nvs_set_players_to_track(int value)
 {
-    cached_players_to_track = (value < 1) ? 1 : (value > 4) ? 4 : value;
+    cached_players_to_track = (value < 1) ? 1 : (value > MAX_DISPLAY_PLAYERS) ? MAX_DISPLAY_PLAYERS : value;
     settings_dirty = true;
 }
 
