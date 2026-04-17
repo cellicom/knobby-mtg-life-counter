@@ -12,6 +12,7 @@
 #include "src/game_mode.h"
 #include "src/damage_log.h"
 #include "src/rename.h"
+#include "src/mana.h"
 
 // ---------- swipe state ----------
 static lv_obj_t *previous_screen = NULL;
@@ -109,6 +110,9 @@ static void handle_back_navigation(lv_obj_t *screen)
         open_player_menu(menu_player);
     } else if (screen == screen_player_color_picker) {
         load_screen_if_needed(screen_player_color_menu);
+    } else if (screen == screen_mana) {
+        mana_discard_preview();
+        lv_scr_load(screen_tools_menu);
     }
 }
 
@@ -131,6 +135,7 @@ void reset_all_values(void)
     refresh_rename_ui();
     refresh_all_damage_ui();
     refresh_counter_edit_ui();
+    mana_clear_all();
 }
 
 void knob_cb(lv_event_t *e)
@@ -163,6 +168,7 @@ void knob_gui(void)
     build_player_color_picker_screen();
     build_select_screen();
     build_damage_screen();
+    build_mana_screen();
     build_settings_screen();
     build_battery_screen();
     build_damage_log_screen();
@@ -249,6 +255,11 @@ static void handle_knob_event(knob_event_t k)
     {
         if (k == KNOB_LEFT)      change_player_color(-1);
         else if (k == KNOB_RIGHT) change_player_color(+1);
+    }
+    else if (lv_scr_act() == screen_mana)
+    {
+        if (k == KNOB_LEFT)      change_mana_value(-1);
+        else if (k == KNOB_RIGHT) change_mana_value(+1);
     }
 }
 
